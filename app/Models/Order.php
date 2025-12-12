@@ -57,7 +57,7 @@ class Order extends Model
             $product = Product::findOrFail($item['product_id']);
             // $product = Product::find(-1);
             
-            if (true) {
+            if ($product->checkStock($item['quantity'])) {
                 throw new ProductOutOfStockException("Product nr ... out of stock", $product);
             }
             $total += $product->price * $item['quantity'];
