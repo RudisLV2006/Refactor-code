@@ -40,7 +40,7 @@ class OrderController extends Controller
         foreach ($data['items'] as $item) {
             $product = Product::findOrFail($item['product_id']);
 
-            if ($product->stock < $item['quantity']) {
+            if ($product->checkStock($item['quantity'])) {
                 return back()->withErrors(['stock' => "{$product->name} is out of stock"]);
             }
 
