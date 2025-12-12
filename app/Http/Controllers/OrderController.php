@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
-use App\Notifications\OrderPlaced;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
+// use App\Notifications\OrderPlaced;
+// use Illuminate\Support\Facades\Notification;
 
 class OrderController extends Controller
 {
@@ -74,7 +74,8 @@ class OrderController extends Controller
         }
 
         // 4️⃣ Send notification
-        Notification::send($order->customer, new OrderPlaced($order));
+        // Notification::send($order->customer, new OrderPlaced($order));
+        $order->sendNotification();
 
         // 5️⃣ Redirect
         return redirect()->route('orders.show', $order);
