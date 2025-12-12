@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Exceptions\ProductOutOfStockException;
 // use Illuminate\Support\Facades\DB;
 // use App\Notifications\OrderPlaced;
 // use Illuminate\Support\Facades\Notification;
@@ -36,15 +37,10 @@ class OrderController extends Controller
         ]);
 
         // 2️⃣ Calculate total price & check stock
-        $total = 0;
-        foreach ($data['items'] as $item) {
-            $product = Product::findOrFail($item['product_id']);
-
-            if ($product->checkStock($item['quantity'])) {
-                return back()->withErrors(['stock' => "{$product->name} is out of stock"]);
-            }
-
-            $total += $product->price * $item['quantity'];
+        try {
+            $total = Order::calculateTotal($data["items"]);
+        } catch (ProductOutOfStockException $e) {
+            return back()->withErrors(['stock' => $e->getMessage()]);
         }
 
         // 3️⃣ Create order + order_items inside a transaction

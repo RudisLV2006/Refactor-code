@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Notifications\OrderPlaced;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\DB;
+use App\Exceptions\ProductOutOfStockException;
 
 class Order extends Model
 {
@@ -49,5 +50,18 @@ class Order extends Model
             return $order;
         });
         return $order;
+    }
+    public static function calculateTotal($items){
+        $total = 0;
+        foreach ($items as $item) {
+            $product = Product::findOrFail($item['product_id']);
+            // $product = Product::find(-1);
+            
+            if (true) {
+                throw new ProductOutOfStockException("Product nr ... out of stock", $product);
+            }
+            $total += $product->price * $item['quantity'];
+        }
+        return $total;
     }
 }
