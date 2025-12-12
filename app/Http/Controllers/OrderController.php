@@ -6,7 +6,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+// use Illuminate\Support\Facades\DB;
 // use App\Notifications\OrderPlaced;
 // use Illuminate\Support\Facades\Notification;
 
@@ -48,21 +48,9 @@ class OrderController extends Controller
         }
 
         // 3️⃣ Create order + order_items inside a transaction
-        DB::beginTransaction();
         try {
-            $order = Order::create([
-                'customer_id' => $data['customer_id'],
-                'total_price' => $total,
-                'status'      => 'pending',
-            ]);
-
-            foreach ($data['items'] as $item) {
-                $order->createFromRequest($item['product_id'], $item['quantity']);
-            }
-
-            DB::commit();
+            $order = Order::createWithItems($data, $total);
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->withErrors(['db' => 'Could not place order']);
         }
 
