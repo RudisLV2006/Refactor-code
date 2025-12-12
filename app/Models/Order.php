@@ -23,7 +23,17 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    public function sendNotification(){
+    public function notifyCustomer(){
         Notification::send($this->customer, new OrderPlaced($this));
+    }
+    public function createFromRequest($productId,$quantity){
+        $product = Product::findOrFail($productId);
+        $this->items()->create([
+            'product_id' => $product->id,
+            'quantity'   => $quantity,
+            'price'      => $product->price,
+        ]);
+        // Reduce stock
+        $product->decrement('stock', $quantity);
     }
 }

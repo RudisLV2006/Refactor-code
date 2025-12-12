@@ -57,14 +57,7 @@ class OrderController extends Controller
             ]);
 
             foreach ($data['items'] as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $order->items()->create([
-                    'product_id' => $product->id,
-                    'quantity'   => $item['quantity'],
-                    'price'      => $product->price,
-                ]);
-                // Reduce stock
-                $product->decrement('stock', $item['quantity']);
+                $order->createFromRequest($item['product_id'], $item['quantity']);
             }
 
             DB::commit();
@@ -75,7 +68,7 @@ class OrderController extends Controller
 
         // 4️⃣ Send notification
         // Notification::send($order->customer, new OrderPlaced($order));
-        $order->sendNotification();
+        $order->notifyCustomer();
 
         // 5️⃣ Redirect
         return redirect()->route('orders.show', $order);
